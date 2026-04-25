@@ -1,0 +1,31 @@
+# CampusServe — .htaccess
+# Place this in the campusserve/ root directory
+
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "\.(sql|md|log|env)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Enable CORS for API (handled in PHP, but belt-and-suspenders)
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options SAMEORIGIN
+</IfModule>
+
+# Rewrite all non-file requests to index.html for SPA
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /campusserve/
+
+    # Don't rewrite actual files or directories
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Don't rewrite API calls
+    RewriteCond %{REQUEST_URI} !^/campusserve/api/
+
+    RewriteRule ^ index.html [L]
+</IfModule>

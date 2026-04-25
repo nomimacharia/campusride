@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>CampusServe</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div id="toast-container"></div>
+<div id="loading-overlay" class="loading-overlay hidden"><div class="spinner"></div></div>
+<div id="modal-backdrop" class="modal-backdrop hidden" onclick="Modal.close()"></div>
+<div id="modal" class="modal hidden"><div id="modal-content"></div></div>
+
+<div class="mobile-container">
+
+<!-- ═══ SCREEN: AUTH ═══ -->
+<div id="screen-auth" class="screen active-screen">
+  <div class="auth-header">
+    <div class="auth-logo-wrap">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+        <circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>
+      </svg>
+    </div>
+    <h1>CampusServe</h1>
+    <p>Your campus mobility companion</p>
+  </div>
+
+  <div class="auth-tabs">
+    <button id="tab-register" class="auth-tab active" onclick="switchAuthTab('register')">Register</button>
+    <button id="tab-login"    class="auth-tab"        onclick="switchAuthTab('login')">Login</button>
+  </div>
+
+  <div class="auth-form-wrap scroll-area">
+    <!-- REGISTER -->
+    <form id="form-register" class="auth-form active" onsubmit="return false;">
+      <div class="field-group">
+        <div class="field-label">Full Name</div>
+        <input id="reg-name" class="field-input" placeholder="Enter your full name"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Phone Number</div>
+        <input id="reg-phone" class="field-input" type="tel" placeholder="+254 7XX XXX XXX"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Email Address</div>
+        <input id="reg-email" class="field-input" type="email" placeholder="you@university.ac.ke"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Password</div>
+        <input id="reg-password" class="field-input" type="password" placeholder="Min. 6 characters"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">I am a</div>
+        <div class="role-cards">
+          <div id="card-customer" class="role-card selected" onclick="selectRole('customer')">
+            <input type="radio" name="role" value="customer" checked/>
+            <div class="role-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div class="role-name">Student</div>
+            <div class="role-desc">Book rides &amp; food</div>
+          </div>
+          <div id="card-provider" class="role-card" onclick="selectRole('provider')">
+            <input type="radio" name="role" value="provider"/>
+            <div class="role-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+            </div>
+            <div class="role-name">Rider</div>
+            <div class="role-desc">Deliver &amp; earn</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="Auth.register()">Create Account</button>
+      <p class="auth-footer">Already have an account? <span onclick="switchAuthTab('login')">Login here</span></p>
+    </form>
+
+    <!-- LOGIN -->
+    <form id="form-login" class="auth-form" onsubmit="return false;">
+      <div class="demo-hint-row">
+        <span>Try demo:</span>
+        <button type="button" class="demo-chip" onclick="Auth.fillDemo('student')">🧑‍🎓 Student</button>
+        <button type="button" class="demo-chip" onclick="Auth.fillDemo('rider')">🏍️ Rider</button>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Email Address</div>
+        <input id="login-email" class="field-input" type="email" placeholder="you@university.ac.ke"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Password</div>
+        <input id="login-password" class="field-input" type="password" placeholder="Enter password"/>
+      </div>
+      <button class="btn-primary" onclick="Auth.login()">Login</button>
+      <p class="auth-footer">No account? <span onclick="switchAuthTab('register')">Register here</span></p>
+    </form>
+  </div>
+</div>
+
+
+<!-- ═══ SCREEN: CUSTOMER DASHBOARD ═══ -->
+<div id="screen-dashboard" class="screen">
+  <div class="dash-header">
+    <div class="dash-header-top">
+      <div>
+        <p class="dash-greeting" id="dash-greeting">Good morning</p>
+        <h2 class="dash-name"><span id="dash-user-name">User</span> 👋</h2>
+      </div>
+      <button class="notif-btn" onclick="Notifications.toggle()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot hidden" id="notif-badge"></span>
+      </button>
+    </div>
+    <div class="dash-badge">📍 Karatina University</div>
+
+    <div id="active-pill" class="active-pill hidden">
+      <div class="active-pill-dot"></div>
+      <span id="active-pill-text">Active…</span>
+      <button id="active-pill-btn" class="active-pill-view">View</button>
+    </div>
+
+    <div class="dash-nav-tabs">
+      <button class="dash-tab active" id="dtab-rides"   onclick="switchDashTab('rides')">🚗 Rides</button>
+      <button class="dash-tab"        id="dtab-food"    onclick="switchDashTab('food')">🍔 Eats</button>
+      <button class="dash-tab"        id="dtab-history" onclick="switchDashTab('history')">📋 History</button>
+    </div>
+  </div>
+
+  <div id="notif-panel" class="notif-panel hidden">
+    <div class="notif-panel-hd">
+      <span>Notifications</span>
+      <button onclick="Notifications.clearAll()">Clear all</button>
+    </div>
+    <div id="notif-list" class="notif-list"><p class="notif-empty">No notifications yet</p></div>
+  </div>
+
+  <div class="dash-content scroll-area">
+
+    <!-- Rides panel -->
+    <div id="panel-rides" class="tab-panel active">
+      <div class="booking-card">
+        <h3>Where are you going?</h3>
+        <div class="route-inputs">
+          <!-- Shared datalist for autocomplete -->
+          <datalist id="locations-list"></datalist>
+
+          <div class="route-input-row">
+            <div class="route-dot green"></div>
+            <input id="pickup-input" class="route-input-field" type="text"
+              placeholder="Pickup location…" autocomplete="off" list="locations-list"
+              oninput="updateFarePreview()"/>
+          </div>
+          <div class="route-line-wrap">
+            <div class="route-vline"></div>
+            <button class="route-swap" onclick="swapRoute()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+            </button>
+          </div>
+          <div class="route-input-row">
+            <div class="route-dot red"></div>
+            <input id="dest-input" class="route-input-field" type="text"
+              placeholder="Where to?" autocomplete="off" list="locations-list"
+              oninput="updateFarePreview()"/>
+          </div>
+        </div>
+        <div id="fare-preview" class="fare-preview hidden">
+          <span>Estimated fare</span>
+          <strong id="fare-preview-amount">KES 0</strong>
+        </div>
+        <button class="btn-primary" onclick="Rides.bookRide()">Find Ride →</button>
+      </div>
+
+      <div class="section-header"><h3>Recent Rides</h3><a onclick="switchDashTab('history')">View all</a></div>
+      <div id="recent-rides-list"></div>
+    </div>
+
+    <!-- Food panel -->
+    <div id="panel-food" class="tab-panel">
+      <div class="filter-scroll">
+        <div class="filter-chip active" onclick="Food.filterCat(this,'all')">All</div>
+        <div class="filter-chip" onclick="Food.filterCat(this,'breakfast')">☀️ Breakfast</div>
+        <div class="filter-chip" onclick="Food.filterCat(this,'lunch')">🍱 Lunch</div>
+        <div class="filter-chip" onclick="Food.filterCat(this,'fast_food')">🍔 Fast Food</div>
+      </div>
+      <div class="section-header"><h3>Menu</h3></div>
+      <div id="menu-list"></div>
+      <div id="cart-bar" class="cart-bar hidden" onclick="navigateTo('screen-checkout')">
+        <div class="cart-bar-left">
+          <div class="cart-bubble" id="cart-count">0</div>
+          <span>items in cart</span>
+        </div>
+        <div class="cart-bar-right">
+          <span id="cart-total-bar">KES 0</span>
+          <span class="cart-cta">View Cart ›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- History panel -->
+    <div id="panel-history" class="tab-panel">
+      <div class="filter-scroll">
+        <div class="filter-chip active" onclick="History.switchTab(this,'rides')">🏍️ Rides</div>
+        <div class="filter-chip" onclick="History.switchTab(this,'orders')">🍽️ Orders</div>
+      </div>
+      <div id="history-rides-list"></div>
+      <div id="history-orders-list" class="hidden"></div>
+    </div>
+
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="navigateTo('screen-dashboard')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('screen-ride-status')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+      <span class="nav-label">Ride</span>
+    </button>
+    <button class="nav-item" onclick="Chat.navBtn()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span class="nav-label">Chat</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('screen-profile')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══ SCREEN: PROVIDER DASHBOARD ═══ -->
+<div id="screen-provider" class="screen">
+  <div class="dash-header">
+    <div class="dash-header-top">
+      <div>
+        <p class="dash-greeting">Rider Dashboard</p>
+        <h2 class="dash-name"><span id="prov-user-name">Rider</span> 💪</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="notif-btn" onclick="Notifications.toggleProv()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot hidden" id="prov-notif-badge"></span>
+        </button>
+        <div class="avail-toggle-wrap" onclick="Provider.toggleAvailability()">
+          <span id="avail-label" class="avail-label">Offline</span>
+          <div class="mini-toggle" id="avail-toggle"><div class="mini-knob"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="dash-nav-tabs">
+      <button class="dash-tab active" id="ptab-rides-btn"    onclick="switchProvTab('rides')">🏍️ Rides</button>
+      <button class="dash-tab"        id="ptab-earnings-btn" onclick="switchProvTab('earnings')">💰 Earnings</button>
+    </div>
+  </div>
+
+  <!-- Provider notifications panel -->
+  <div id="prov-notif-panel" class="notif-panel hidden">
+    <div class="notif-panel-hd">
+      <span>Notifications</span>
+      <button onclick="Notifications.clearAll()">Clear all</button>
+    </div>
+    <div id="prov-notif-list" class="notif-list"><p class="notif-empty">No notifications yet</p></div>
+  </div>
+
+  <div class="dash-content scroll-area">
+
+    <!-- Rides panel -->
+    <div id="prov-panel-rides" class="tab-panel active">
+      <div class="section-header">
+        <h3>Pending Requests</h3>
+        <button class="btn-refresh" onclick="Provider.loadRides()">🔄 Refresh</button>
+      </div>
+      <div id="provider-rides-list"></div>
+      <div class="section-header" style="margin-top:20px"><h3>My Active Ride</h3></div>
+      <div id="provider-active-ride"></div>
+    </div>
+
+    <!-- Earnings panel -->
+    <div id="prov-panel-earnings" class="tab-panel">
+      <div id="provider-stats-cards" class="stats-grid"></div>
+    </div>
+
+  </div>
+
+  <!-- Provider bottom nav — home goes to screen-provider, NOT screen-dashboard -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="navigateTo('screen-provider')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item" onclick="Chat.navBtn()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span class="nav-label">Chat</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('screen-profile')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══ SCREEN: RIDE STATUS ═══ -->
+<div id="screen-ride-status" class="screen">
+  <div class="status-header">
+    <button class="back-btn" id="ride-status-back">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div>
+      <div class="header-title">Active Ride</div>
+      <div class="header-sub" id="ride-header-sub">Tracking your ride</div>
+    </div>
+  </div>
+
+  <div class="status-content scroll-area">
+    <div class="status-bar">
+      <div class="status-label">Current Status</div>
+      <span class="status-badge pending" id="ride-status-badge">⏳ PENDING</span>
+    </div>
+
+    <div class="trip-card">
+      <h4>Trip Details</h4>
+      <div class="trip-route">
+        <div class="route-spine">
+          <div class="dot-green"></div>
+          <div class="spine-line"></div>
+          <div class="dot-red"></div>
+        </div>
+        <div class="route-details">
+          <div class="route-point">
+            <div class="rp-label">From</div>
+            <div class="rp-value" id="status-pickup">—</div>
+          </div>
+          <div class="route-point">
+            <div class="rp-label">To</div>
+            <div class="rp-value" id="status-dest">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="trip-fare">
+        <div><div class="fare-label">Estimated Fare</div><div class="fare-sub">Cash payment</div></div>
+        <div class="fare-amount" id="status-fare">KES —</div>
+      </div>
+      <div class="driver-info hidden" id="driver-info-wrap">
+        <div class="driver-avatar" id="driver-avatar">🏍️</div>
+        <div>
+          <div class="driver-name" id="driver-name">Driver</div>
+          <div class="driver-phone" id="driver-phone"></div>
+        </div>
+        <button class="btn-chat-ride" id="btn-chat-ride">💬 Chat</button>
+      </div>
+    </div>
+
+    <div class="stepper-card">
+      <h4>Ride Progress</h4>
+      <div class="stepper">
+        <div class="step" id="step-1">
+          <div class="step-spine"><div class="step-circle current" id="sc-1">1</div><div class="step-connector" id="scon-1"></div></div>
+          <div class="step-body current" id="sb-1"><div class="step-title">Searching for driver</div><div class="step-time" id="step-1-time">Just now</div></div>
+        </div>
+        <div class="step" id="step-2">
+          <div class="step-spine"><div class="step-circle upcoming" id="sc-2">2</div><div class="step-connector" id="scon-2"></div></div>
+          <div class="step-body" id="sb-2"><div class="step-title">Driver assigned</div><div class="step-time" id="step-2-time">Pending</div></div>
+        </div>
+        <div class="step" id="step-3">
+          <div class="step-spine"><div class="step-circle upcoming" id="sc-3">3</div><div class="step-connector" id="scon-3"></div></div>
+          <div class="step-body" id="sb-3"><div class="step-title">Ride in progress</div><div class="step-time" id="step-3-time">Pending</div></div>
+        </div>
+        <div class="step" id="step-4">
+          <div class="step-spine"><div class="step-circle upcoming" id="sc-4">4</div></div>
+          <div class="step-body" id="sb-4"><div class="step-title">Completed</div><div class="step-time" id="step-4-time">Pending</div></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-cancel-ride hidden" id="btn-cancel-ride" onclick="Rides.cancelRide()">✕ Cancel Ride</button>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-item" id="rs-home-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-item active">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+      <span class="nav-label">Ride</span>
+    </button>
+    <button class="nav-item" onclick="Chat.navBtn()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span class="nav-label">Chat</span>
+    </button>
+    <button class="nav-item" onclick="navigateTo('screen-profile')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══ SCREEN: CHECKOUT ═══ -->
+<div id="screen-checkout" class="screen">
+  <div class="status-header">
+    <button class="back-btn" onclick="navigateTo('screen-dashboard')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div><div class="header-title">Your Cart</div></div>
+    <button class="btn-clear-hd" onclick="Checkout.clearCart()">Clear</button>
+  </div>
+
+  <div class="scroll-area checkout-body">
+    <div id="cart-items-list"></div>
+
+    <div id="checkout-form-wrap" class="hidden">
+      <div class="trip-card" style="margin:12px 0 0">
+        <h4>Order Details</h4>
+        <div class="field-group" style="margin-top:12px">
+          <div class="field-label">📍 Delivery Location</div>
+          <select id="delivery-location" class="field-input"><option value="">-- Select location --</option></select>
+        </div>
+        <div class="field-group">
+          <div class="field-label">💳 Payment Method</div>
+          <div class="role-cards">
+            <label class="role-card" style="cursor:pointer">
+              <input type="radio" name="payment" value="cash" checked onchange="toggleMpesa()"/>
+              <div class="role-icon">💵</div>
+              <div class="role-name">Cash</div>
+              <div class="role-desc">Pay on delivery</div>
+            </label>
+            <label class="role-card" style="cursor:pointer">
+              <input type="radio" name="payment" value="mpesa" onchange="toggleMpesa()"/>
+              <div class="role-icon">📱</div>
+              <div class="role-name">M-Pesa</div>
+              <div class="role-desc">STK push</div>
+            </label>
+          </div>
+        </div>
+        <div id="mpesa-input-wrap" class="field-group hidden">
+          <div class="field-label">M-Pesa Phone Number</div>
+          <input id="mpesa-number" class="field-input" type="tel" placeholder="0712345678"/>
+        </div>
+        <div class="order-summary-box">
+          <div class="sum-row"><span>Subtotal</span><span id="checkout-subtotal">KES 0</span></div>
+          <div class="sum-row"><span>Delivery Fee</span><span>KES 30</span></div>
+          <div class="sum-row sum-total"><span>Total</span><span id="checkout-total">KES 0</span></div>
+        </div>
+        <button class="btn-primary" style="margin-top:16px" onclick="Checkout.placeOrder()">Place Order →</button>
+      </div>
+    </div>
+
+    <div id="empty-cart" class="empty-state">
+      <div class="empty-icon">🛒</div>
+      <p>Your cart is empty</p>
+      <button class="btn-outline" onclick="navigateTo('screen-dashboard')">Browse Menu</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ SCREEN: CHAT ═══ -->
+<div id="screen-chat">
+  <div class="chat-header">
+    <button class="back-btn" id="chat-back-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="chat-avatar" id="chat-avatar-initials">?</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name" id="chat-partner-name">Driver</div>
+      <div class="chat-header-status"><span class="status-dot-live"></span> Active</div>
+    </div>
+    <div class="chat-ride-ref" id="chat-ride-ref"></div>
+  </div>
+  <div id="chat-messages" class="chat-messages"><div class="chat-date">Today</div></div>
+  <div class="chat-input-bar">
+    <input id="chat-input-field" class="chat-input" placeholder="Type a message…"/>
+    <button class="chat-send-btn" onclick="Chat.sendMessage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+
+<!-- ═══ SCREEN: PROFILE ═══ -->
+<div id="screen-profile" class="screen">
+  <div class="status-header">
+    <button class="back-btn" id="profile-back-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div><div class="header-title">My Profile</div></div>
+  </div>
+
+  <div class="scroll-area profile-body">
+    <div class="profile-hero">
+      <div class="profile-avatar-ring"><span id="profile-avatar">🧑</span></div>
+      <h3 id="profile-name-display">Name</h3>
+      <span id="profile-role-badge" class="badge completed">Student</span>
+      <div class="profile-stats-row" id="profile-stats-mini"></div>
+    </div>
+
+    <div class="trip-card" style="margin:0 16px 12px">
+      <h4>Edit Profile</h4>
+      <div class="field-group" style="margin-top:12px">
+        <div class="field-label">Full Name</div>
+        <input id="profile-name" class="field-input" placeholder="Your name"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Phone Number</div>
+        <input id="profile-phone" class="field-input" type="tel" placeholder="0712345678"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">Email</div>
+        <input id="profile-email" class="field-input" type="email" disabled/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">New Password <small>(blank = keep current)</small></div>
+        <input id="profile-new-password" class="field-input" type="password" placeholder="New password…"/>
+      </div>
+      <button class="btn-primary" style="margin-top:4px" onclick="Profile.save()">Save Changes</button>
+    </div>
+
+    <div class="trip-card" style="margin:0 16px 12px">
+      <h4>App Info</h4>
+      <div class="info-row"><span>Version</span><span class="info-val">v1.2 Final</span></div>
+      <div class="info-row"><span>Member since</span><span class="info-val" id="profile-member-since">—</span></div>
+    </div>
+
+    <div style="padding:0 16px 40px">
+      <button class="btn-danger" onclick="Profile.logout()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /mobile-container -->
+<script src="script.js"></script>
+</body>
+</html>
